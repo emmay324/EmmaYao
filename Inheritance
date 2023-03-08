@@ -1,22 +1,48 @@
-import java.awt.*;
+public class Planet {
+    private final int orbitTime;
+    private final ArrayList<Moon> moons = new ArrayList<>();
+    private final String designation;
 
-public class Main {
-    public static void main(String[] args) {
-        Planet p1 = new Planet(1, "Andromeda");
-        System.out.println(p1);
+    public Planet(int orbitTime, String designation) {
+        super();
+        this.orbitTime = orbitTime;
+        this.designation = designation;
+    }
 
-        RockPlanet mars = new RockPlanet(10, "Mars", true);
-        Moon phobos = new Moon(mars, 7, false, "Phobos");
-        mars.addMoon(phobos);
-        System.out.println();
+    public String getDesignation() {
+        return this.designation;
+    }
 
-        GasPlanet saturn = new GasPlanet(20, "Saturn", Color.RED);
-        Moon titan = new Moon(saturn, 16, true, "Titan");
-        Moon rhea = new Moon(saturn, 5, false, "Rhea");
-        saturn.addMoon(titan);
-        saturn.addMoon(rhea);
-        System.out.println();
+    public int getOrbitTime() {
+        return this.orbitTime;
+    }
 
+    public void addMoon(Moon moon) {
+        this.moons.add(moon);
+    }
 
+    public ArrayList<Moon> getMoons() {
+        return this.moons;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Planet p)) {
+            return false;
+        }
+
+        return this.designation.equals(p.getDesignation()) && this.orbitTime == p.getOrbitTime();
+    }
+
+    @Override
+    public String toString() {
+        return "Planet{" +
+                "orbitTime=" + orbitTime +
+                ", moons=" + moons +
+                ", designation='" + designation + '\'' +
+                '}';
     }
 }
