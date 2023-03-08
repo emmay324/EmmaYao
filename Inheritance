@@ -1,19 +1,30 @@
-public class RockPlanet extends Planet {
-    private final boolean habitable;
+import java.awt.*;
 
-    public RockPlanet(int orbitTime, String designation, boolean habitable) {
+public class GasPlanet extends Planet {
+    private boolean hasRings;
+    private final Color color;
+
+    public GasPlanet(int orbitTime, String designation, Color color) {
         super(orbitTime, designation);
-        this.habitable = habitable;
+        this.color = color;
+    }
+
+    public boolean isHasRings() {
+        return hasRings;
+    }
+
+    public Color getColor() {
+        return this.color;
     }
 
     @Override
     public String toString() {
-        return "RockPlanet{" +
+        return "GasPlanet{" +
                 "designation='" + super.getDesignation() + '\'' +
                 ", orbitTime=" + super.getOrbitTime() +
                 ", moons=" + super.getMoons() +
-                ", habitable='" + this.habitable + '\'' +
+                ", hasRings='" + this.isHasRings() + '\'' +
+                ", color='" + this.getColor() + '\'' +
                 '}';
     }
 
-}
