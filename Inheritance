@@ -1,50 +1,19 @@
-import java.util.Objects;
+public class RockPlanet extends Planet {
+    private final boolean habitable;
 
-public class Moon {
-    private final Planet planet;
-    private final int orbitTime;
-    private final boolean atmosphere;
-    private final String designation;
-
-    public Moon(Planet p, int o, boolean a, String d) {
-        this.planet = p;
-        this.orbitTime = o;
-        this.atmosphere = a;
-        this.designation = d;
-    }
-
-
-    public String getDesignation() {
-        return designation;
-    }
-
-    public Planet getPlanet() {
-        return this.planet;
-    }
-
-    public int getOrbitTime() {
-        return this.orbitTime;
-    }
-
-    public boolean isAtmosphere() {
-        return this.atmosphere;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Moon moon = (Moon) o;
-        return orbitTime == moon.orbitTime && atmosphere == moon.atmosphere && Objects.equals(planet, moon.planet) && Objects.equals(designation, moon.designation);
+    public RockPlanet(int orbitTime, String designation, boolean habitable) {
+        super(orbitTime, designation);
+        this.habitable = habitable;
     }
 
     @Override
     public String toString() {
-        return "Moon{" +
-                "designation='" + this.getDesignation() + '\'' +
-                ", planet='" + this.getPlanet().getDesignation() + '\'' +
-                ", orbitTime=" + this.getOrbitTime() +
-                ", atmosphere=" + this.isAtmosphere() +
+        return "RockPlanet{" +
+                "designation='" + super.getDesignation() + '\'' +
+                ", orbitTime=" + super.getOrbitTime() +
+                ", moons=" + super.getMoons() +
+                ", habitable='" + this.habitable + '\'' +
                 '}';
     }
+
 }
