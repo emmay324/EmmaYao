@@ -1,0 +1,177 @@
+// Enumeration for different colours
+enum Colour {
+    RED,
+    GREEN,
+    BLUE,
+    NONE
+}
+
+// Abstract class for 2D shapes
+public abstract class TwoDShape {
+    // Fields for width, height, and colour of the shape
+    private double width;
+    private double height;
+    private Colour colour;
+
+    // Constructor with a colour parameter
+    public TwoDShape(Colour colour) {
+        this.width = 0.0;
+        this.height = 0.0;
+        this.colour = colour;
+    }
+
+    // Constructor with width, height parameters
+    public TwoDShape(double width, double height) {
+        this.width = width;
+        this.height = height;
+        this.colour = colour;
+    }
+
+    // Default constructor with no parameters
+    public TwoDShape() {
+        this.width = 0.0;
+        this.height = 0.0;
+        this.colour = Colour.NONE;
+    }
+
+    // Getter and setter methods for width and height fields
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    // Getter and setter methods for colour field
+    public Colour getColour() {
+        return colour;
+    }
+
+    public void setColour(Colour colour) {
+        this.colour = colour;
+    }
+
+    // Abstract method to get the area of the shape
+    public abstract double getArea();
+
+    // Override the toString() method to return a string representation of the object
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " - " + "Width: " + width + ", Height: " + height + ", Colour: " + colour;
+    }
+}
+
+// Interface for rotating a shape
+interface Rotate {
+    // Field for angle of rotation
+    double angle = 0.0;
+
+    // Methods to rotate the shape by 90, 180, or a specified degree
+    void rotate90();
+
+    void rotate180();
+
+    void rotate(double degree);
+}
+
+// Triangle subclass of TwoDShape, implementing Rotate interface
+class Triangle extends TwoDShape implements Rotate {
+    // Fields for sides and angle of the triangle
+    private double side1;
+    private double side2;
+    private double side3;
+    private double angle;
+
+    // Constructor with width and height parameters
+    public Triangle(double width, double height) {
+        super(width, height);
+        this.side1 = width;
+        this.side2 = height;
+        this.side3 = Math.sqrt(width*width + height*height);
+        this.angle = 0.0;
+    }
+
+    // Constructor with side parameters
+    public Triangle(double side1, double side2, double side3) {
+        super();
+        this.side1 = side1;
+        this.side2 = side2;
+        this.side3 = side3;
+        this.angle = 0.0;
+    }
+
+    // Private method to calculate the height of the triangle using Heron's formula
+    private double heronsHeight() {
+        double s = (side1 + side2 + side3) / 2;
+        return 2 * Math.sqrt(s * (s - side1) * (s - side2) * (s - side3)) / side1;
+    }
+
+   // Public method to calculate the area of the triangle using the base and height
+    public double getArea() {
+        double height = heronsHeight();
+        return 0.5 * side1 * height;
+    }
+
+    // Implement the rotate90() method from the Rotate interface to rotate the triangle by 90 degrees
+    @Override
+    public void rotate90() {
+        this.angle = (this.angle + 90) % 360;
+    }
+
+    // Implement the rotate180() method from the Rotate interface to rotate the triangle by 180 degrees
+    @Override
+    public void rotate180() {
+        this.angle = (this.angle + 180) % 360;
+    }
+
+    // Implement the rotate() method from the Rotate interface to rotate the triangle by a given number of degrees
+    @Override
+    public void rotate(double degree) {
+        this.angle = (this.angle + degree) % 360;
+    }
+
+    // Override the toString() method to return a string representation of the triangle's properties
+    @Override
+    public String toString() {
+        return super.toString() +
+                ", Side 1: " + side1 +
+                ", Side 2: " + side2 +
+                ", Side 3: " + side3 +
+                ", Angle: " + angle;
+    }
+}
+
+// Subclass called Circle that extends the TwoDShape class
+class Circle extends TwoDShape {
+    // Public constant for the value of pi
+    public static final double PI = 3.14159;
+    // Private instance variable to store the radius of the circle
+    private double radius;
+
+    // Constructor that takes in the radius of the circle
+    public Circle(double radius) {
+        super();
+        this.radius = radius;
+    }
+
+    // Public method to calculate the area of the circle using the formula pi * r^2
+    public double getArea() {
+        return PI * radius * radius;
+    }
+
+    // Override the toString() method to return a string representation of the circle's properties
+    @Override
+    public String toString() {
+        return super.toString() +
+                ", Radius: " + radius;
+    }
+}
