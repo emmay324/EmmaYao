@@ -1,0 +1,80 @@
+import java.util.LinkedList;
+import java.util.Stack;
+
+enum Suit {
+    CLUBS, DIAMONDS, HEARTS, SPADES
+}
+
+enum Face {
+    ACE(1), TWO(2), THREE(3), FOUR(4), FIVE(5), SIX(6), SEVEN(7), EIGHT(8), NINE(9), TEN(10),
+    JACK(11), QUEEN(12), KING(13);
+
+    private final int value;
+
+    Face(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+}
+
+class Card {
+    private final Suit suit;
+    private final Face face;
+
+    public Card(Suit suit, Face face) {
+        this.suit = suit;
+        this.face = face;
+    }
+
+    public Suit getSuit() {
+        return suit;
+    }
+
+    public Face getFace() {
+        return face;
+    }
+
+    public String toString() {
+        return face + " of " + suit;
+    }
+}
+
+public class Deck {
+    private final LinkedList<Card> cards;
+    private final Stack<Card> stack;
+
+    public Deck() {
+        cards = new LinkedList<>();
+        stack = new Stack<>();
+        for (Suit suit : Suit.values()) {
+            for (Face face : Face.values()) {
+                cards.add(new Card(suit, face));
+            }
+        }
+    }
+
+    public Card draw() {
+        return stack.pop();
+    }
+
+    public void shuffle() {
+        for (int i = 0; i < cards.size(); i++) {
+            int j = (int) (Math.random() * cards.size());
+            Card temp = cards.get(i);
+            cards.set(i, cards.get(j));
+            cards.set(j, temp);
+        }
+        stack.addAll(cards);
+    }
+
+    public LinkedList<Card> dealHand(int size) {
+        LinkedList<Card> hand = new LinkedList<>();
+        for (int i = 0; i < size; i++) {
+            hand.add(stack.pop());
+        }
+        return hand;
+    }
+}
