@@ -78,3 +78,11 @@ public class Deck {
         return hand;
     }
 }
+
+public static void main(String[] args) {
+    Deck deck = new Deck();
+    deck.shuffle();
+
+    LinkedList<Card> hand = deck.dealHand(7);
+    System.out.println("Hand: " + hand);
+}
