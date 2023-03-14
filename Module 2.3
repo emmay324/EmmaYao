@@ -1,0 +1,109 @@
+import java.util.LinkedList;
+import java.util.Stack;
+import java.util.Comparator;
+
+enum Suit {
+    CLUBS, DIAMONDS, HEARTS, SPADES
+}
+
+enum Face {
+    ACE(1), TWO(2), THREE(3), FOUR(4), FIVE(5), SIX(6), SEVEN(7), EIGHT(8), NINE(9), TEN(10),
+    JACK(11), QUEEN(12), KING(13);
+
+    private final int value;
+
+    Face(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+}
+
+class Card {
+    private final Suit suit;
+    private final Face face;
+
+    public Card(Suit suit, Face face) {
+        this.suit = suit;
+        this.face = face;
+    }
+
+    public Suit getSuit() {
+        return suit;
+    }
+
+    public Face getFace() {
+        return face;
+    }
+
+    public String toString() {
+        return face + " of " + suit;
+    }
+}
+
+public class Deck {
+    private final LinkedList<Card> cards;
+    private final Stack<Card> stack;
+
+    public Deck() {
+        cards = new LinkedList<>();
+        stack = new Stack<>();
+        for (Suit suit : Suit.values()) {
+            for (Face face : Face.values()) {
+                cards.add(new Card(suit, face));
+            }
+        }
+    }
+
+    public Card draw() {
+        return stack.pop();
+    }
+
+    public void shuffle() {
+        for (int i = 0; i < cards.size(); i++) {
+            int j = (int) (Math.random() * cards.size());
+            Card temp = cards.get(i);
+            cards.set(i, cards.get(j));
+            cards.set(j, temp);
+        }
+        stack.addAll(cards);
+    }
+
+    public LinkedList<Card> dealHand(int size) {
+        LinkedList<Card> hand = new LinkedList<>();
+        for (int i = 0; i < size; i++) {
+            hand.add(stack.pop());
+        }
+        return hand;
+    }
+}
+
+public class CardComparator {
+
+    public static final Comparator<Card> BY_SUIT_THEN_VALUE = new BySuitThenValue();
+
+    private static class BySuitThenValue implements Comparator<Card> {
+        private static final String SUIT_ORDER = "SHCD";
+
+        public int compare(Card card1, Card card2) {
+            if (card1 == card2) {
+                return 0;
+            }
+            int suit1 = SUIT_ORDER.indexOf(card1.getSuit().toString());
+            int suit2 = SUIT_ORDER.indexOf(card2.getSuit().toString());
+            if (suit1 < suit2) {
+                return -1;
+            } else if (suit1 > suit2) {
+                return 1;
+            } else {
+                return card1.getFace().getValue() - card2.getFace().getValue();
+            }
+        }
+    }
+}
+
+LinkedList<Card> cards = new LinkedList<>();
+cards.sort(CardComparator.BY_SUIT_THEN_VALUE);
+
