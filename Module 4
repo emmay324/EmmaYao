@@ -1,0 +1,89 @@
+public class Main {
+    public static DatabaseHandler handler;
+
+    public static void addFileInfo(String tblName, String fileName, String filePath, String fileExtension, long fileSize){
+        String qu = "INSERT INTO " + tblName + " VALUES (" +
+                "'" + fileName + "'," +
+                "'" + filePath + "'," +
+                "'" + fileExtension + "'," +
+                fileSize + ")";
+        handler.execAction(qu);
+    }
+
+    public static void createTable(File directory) {
+        List<File> files;
+        files = (List<File>) FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+
+        String directoryName = directory.getName();
+        handler.createTable(directoryName);
+
+        for (int i = 0; i < files.size(); i++) {
+            File temp = files.get(i);
+            addFileInfo(directory.getName(), temp.getName(), temp.getPath(), FilenameUtils.getExtension(temp.getName()), temp.length());
+        }
+    }
+
+    public static void displayFiles(String directory) {
+        String qu = "SELECT * FROM " + directory;
+        ResultSet result = handler.execQuery(qu);
+        try {
+            while (result.next()) {
+                String fileName = result.getString("NAME");
+                String filePath = result.getString("PATH");
+                String fileExtension = result.getString("EXTENSION");
+                long fileSize = result.getLong("SIZE");
+                System.out.println("File Name" + fileName);
+                System.out.println("    - PATH = " + filePath);
+                System.out.println("    - Extension = " + fileExtension);
+                System.out.println("    - Size = " + fileSize);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+
+        handler = DatabaseHandler.getHandler();
+
+        while (true) {
+
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Type create to create a table for a directory");
+            System.out.println("Or type display to display files in a directory");
+            System.out.println("Or type exit to finish the program");
+
+            String input = sc.nextLine();
+
+            if (input.equalsIgnoreCase("create")) {
+                System.out.println("Provide a directory name: ");
+                String directory = sc.nextLine();
+                File userDir = new File(directory);
+
+                if (!FileUtils.isDirectory(userDir)) {
+                    System.out.println("Your input directory is invalid!");
+                    continue;
+                }
+                
+                createTable(userDir);
+
+            } else if (input.equalsIgnoreCase("display")) {
+                System.out.println("Provide a directory name: ");
+                String directory = sc.nextLine();
+
+                File userDir = new File(directory);
+
+                if (!FileUtils.isDirectory(userDir)) {
+                    System.out.println("Your input directory is invalid");
+                    continue;
+                }
+
+                displayFiles(userDir.getName());
+
+            } else if (input.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+        }
+    }
+}
