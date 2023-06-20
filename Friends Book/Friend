@@ -1,0 +1,13 @@
+public class Friend {
+    private String name;
+    private String id;
+    private String mobile;
+    private String email;
+
+    public Friend(String name, String id, String mobile, String email) {
+        this.name = name;
+        this.id = id;
+        this.mobile = mobile;
+        this.email = email;
+    }
+}
