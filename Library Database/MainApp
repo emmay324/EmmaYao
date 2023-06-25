@@ -1,0 +1,116 @@
+public class MainApp extends Application {
+
+    public static DatabaseHandler dbHandler;
+    public static String bookstoreTBL = "BOOKSTORE";
+    public static String customerTBL = "CUSTOMER";
+    public static Customer loggedCustomer;
+
+    private Stage primaryStage;
+    private BorderPane rootLayout;
+    private ObservableList<Book> bookData = FXCollections.observableArrayList();
+
+    public MainApp() {
+        addBook(new Book("Test book", "test author", "Fantasy", 26374, 10), bookstoreTBL);
+        addCustomer(new Customer("Test", "Customer", 1111, 37283, 0), customerTBL);
+    }
+
+    public static void addBook(Book b, String tblName){
+        String qu = "INSERT INTO " + tblName + " VALUES (" +
+                "'" + b.getTitle() + "'," +
+                "'" + b.getAuthor() + "'," +
+                "'" + b.getGenre() + "'," +
+                b.getIDNumber() + "," +
+                b.getQuantity() + ")";
+        dbHandler.execAction(qu);
+    }
+
+    public static void addCustomer(Customer u, String tblName){
+        String qu = "INSERT INTO " + tblName + " VALUES (" +
+                "'" + u.getFirstName() + "'," +
+                "'" + u.getLastName() + "'," +
+                u.getPIN() + "," + null + "," +
+                u.getCustomerID() + ")";
+        dbHandler.execAction(qu);
+    }
+
+    public ObservableList<Book> getBookData() {
+        return bookData;
+    }
+
+    public DatabaseHandler getDBHandler() { return dbHandler; }
+
+    public Customer getLoginCustomer() { return loggedCustomer; }
+
+    @Override
+    public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("Virtual Bookstore");
+
+        initRootLayout();
+
+        if (showLoginView()) {
+            showBookstoreView();
+        }
+    }
+
+    public void initRootLayout() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
+            rootLayout = (BorderPane) loader.load();
+            Scene scene = new Scene(rootLayout);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean showLoginView() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("view/LoginView.fxml"));
+            AnchorPane loginView = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Login");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(loginView);
+            dialogStage.setScene(scene);
+
+            LoginViewController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setMainApp(this);
+
+            dialogStage.showAndWait();
+            loggedCustomer = controller.getLoggedCustomer();
+            return controller.isOkClicked();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void showBookstoreView() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("view/BookstoreView.fxml"));
+            AnchorPane BookstoreView = (AnchorPane) loader.load();
+
+            rootLayout.setCenter(BookstoreView);
+            BookstoreViewController controller = loader.getController();
+            controller.setMainApp(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public static void main(String[] args) {
+        dbHandler = DatabaseHandler.getHandler();
+        launch(args);
+    }
+}
