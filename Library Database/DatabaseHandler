@@ -1,0 +1,102 @@
+import java.sql.*;
+
+public class DatabaseHandler {
+    private static final String DB_url = "jdbc:derby:database/forum;create=true";
+    private static Connection conn = null;
+    private static Statement stmt = null;
+    public static DatabaseHandler handler;
+    public static String bookstoreTBL = "BOOKSTORE";
+    public static String customerTBL = "CUSTOMER";
+
+    public DatabaseHandler() {
+        try {
+            createConnection();
+            createTable();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static DatabaseHandler getHandler(){
+        if(handler == null){
+            handler = new DatabaseHandler();
+            return handler;
+        }else{
+            return handler;
+        }
+    }
+
+    public static boolean tableExists(String tblName) throws SQLException {
+        DatabaseMetaData meta = conn.getMetaData();
+        ResultSet resultSet = meta.getTables(null, null, tblName, new String[] {"TABLE"});
+
+        return resultSet.next();
+    }
+
+    public void createTable() {
+        try {
+            stmt = conn.createStatement();
+
+            if (tableExists(customerTBL)) {
+                System.out.println("Table " + customerTBL + " exists");
+            } else {
+                String statement = "CREATE TABlE " + customerTBL + " ("
+                        + "firstName varchar(200), \n"
+                        + "lastName varchar(200), \n"
+                        + "pin int, \n"
+                        + "bookID int, \n"
+                        + "customerID int primary key)";
+
+                stmt.execute(statement);
+            }
+
+            if (tableExists(bookstoreTBL)) {
+                System.out.println("Table " + bookstoreTBL + " exists");
+            } else {
+                String statement = "CREATE TABlE " + bookstoreTBL + " ("
+                        + "title varchar(200), \n"
+                        + "author varchar(200), \n"
+                        + "genre varchar(200), \n"
+                        + "quantity int, \n"
+                        + "idNumber int primary key)";
+
+                stmt.execute(statement);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private static void createConnection() throws ClassNotFoundException {
+        try {
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            conn = DriverManager.getConnection(DB_url);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void execAction(String qu) {
+        try {
+            stmt = conn.createStatement();
+            stmt.execute(qu);
+
+        } catch (SQLException throwables) {
+            System.out.println(throwables);
+            System.out.println("Did not enter data");
+        }
+    }
+
+    public ResultSet execQuery(String query){
+        ResultSet resultSet;
+        try{
+            stmt = conn.createStatement();
+            resultSet = stmt.executeQuery(query);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+        return resultSet;
+    }
+}
