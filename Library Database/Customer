@@ -1,0 +1,46 @@
+public class Customer {
+
+    private final String firstName;
+    private final String lastName;
+    private final int pinNumber;
+    private final int customerID;
+
+    private int borrowedID;
+
+    public Customer() {
+        this(null, null, null, null, 0);
+    }
+
+    public Customer(String fn, String ln, Integer pn, Integer ci, Integer bi) {
+        this.firstName = fn;
+        this.lastName = ln;
+        this.pinNumber = pn;
+        this.customerID = ci;
+        this.borrowedID = bi;
+    }
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public int getPIN() {
+        return this.pinNumber;
+    }
+
+    public int getCustomerID() {
+        return this.customerID;
+    }
+
+    public int getBorrowedID() {
+        return this.borrowedID;
+    }
+
+    public void setBorrowedID(int id) {
+        this.borrowedID = id;
+    }
+
+}
