@@ -1,0 +1,176 @@
+public class BookstoreViewController {
+
+    @FXML
+    private TableColumn<Book, String> authorCol;
+
+    @FXML
+    private Button borrowBtn;
+
+    @FXML
+    private TableColumn<Book, String> genreCol;
+
+    @FXML
+    private TableColumn<Book, Integer> idCol;
+
+    @FXML
+    private TableColumn<Book, Integer> quantityCol;
+
+    @FXML
+    private Button returnBtn;
+
+    @FXML
+    private Label selectedBookLbl;
+
+    @FXML
+    private Label loggedCustomerLbl;
+
+    @FXML
+    private Label bookID;
+
+    @FXML
+    private Label statusLbl;
+    @FXML
+    private TableColumn<Book, String> titleCol;
+
+    @FXML
+    private TableView<Book> bookstoreTable;
+
+    public static String bookstoreTBL = "BOOKSTORE";
+    public static String customerTBL = "CUSTOMER";
+
+    private MainApp mainApp;
+
+    private Book selectedBook;
+
+    public BookstoreViewController() {
+    }
+
+    @FXML
+    private void initialize() {
+        titleCol.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+        authorCol.setCellValueFactory(cellData -> cellData.getValue().authorProperty());
+        genreCol.setCellValueFactory(cellData -> cellData.getValue().genreProperty());
+        quantityCol.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
+        idCol.setCellValueFactory(cellData -> cellData.getValue().idNumProperty().asObject());
+
+        displaySelectedBook(null);
+
+        bookstoreTable.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> displaySelectedBook(newValue));
+    }
+
+    public void setMainApp(MainApp mainApp) {
+        this.mainApp = mainApp;
+        DatabaseHandler db = mainApp.getDBHandler();
+        Customer cus = mainApp.getLoginCustomer();
+        loggedCustomerLbl.setText(cus.getFirstName() + " " + cus.getLastName());
+
+        ObservableList<Book> bookList = FXCollections.observableArrayList();
+        String st = "SELECT * FROM " + bookstoreTBL;
+        ResultSet rs = db.execQuery(st);
+
+        try {
+            while (rs.next()) {
+                String title = rs.getString("TITLE");
+                String author = rs.getString("AUTHOR");
+                String genre = rs.getString("GENRE");
+                int quantity = rs.getInt("QUANTITY");
+                int id = rs.getInt("IDNUMBER");
+                bookList.add(new Book(title, author, genre, quantity, id));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        bookstoreTable.setItems(bookList);
+
+    }
+
+    private void displaySelectedBook(Book book) {
+        selectedBook = book;
+
+        if (book != null) {
+            Customer cus = mainApp.getLoginCustomer();
+            loggedCustomerLbl.setText(cus.getFirstName() + " " + cus.getLastName());
+            selectedBookLbl.setText(book.getTitle());
+            bookID.setText(String.valueOf(book.getIDNumber()));
+            if (cus.getBorrowedID() > 0 && cus.getBorrowedID() == book.getIDNumber()) {
+                statusLbl.setText("Borrowed");
+            } else {
+                statusLbl.setText("Available");
+            }
+        } else {
+            selectedBookLbl.setText("");
+            statusLbl.setText("");
+        }
+    }
+
+    @FXML
+    private void borrowBook() {
+        DatabaseHandler db = mainApp.getDBHandler();
+        Customer cu = mainApp.getLoginCustomer();
+
+        String updateCusQuery = "UPDATE " + customerTBL +
+                " SET BOOKID = " + selectedBook.getIDNumber() +
+                " WHERE CUSTOMERID = " + cu.getCustomerID();
+        System.out.println("Customer query: " + updateCusQuery);
+        db.execAction(updateCusQuery);
+
+        int quantity = selectedBook.getQuantity()-1;
+        String updateBookQuery = "UPDATE " + bookstoreTBL +
+                " SET QUANTITY = " + quantity +
+                " WHERE IDNUMBER = " + selectedBook.getIDNumber();
+
+        System.out.println("Customer query: " + updateBookQuery);
+
+        db.execAction(updateBookQuery);
+        quantityCol.setText(Integer.toString(quantity));
+        statusLbl.setText("Borrowed");
+        cu.setBorrowedID(selectedBook.getIDNumber());
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.initOwner(mainApp.getPrimaryStage());
+        alert.setTitle("Borrowed");
+        alert.setHeaderText("Success!!");
+        alert.setContentText("You borrowed " + selectedBook.getTitle());
+
+        alert.showAndWait();
+
+    }
+
+    @FXML
+    private void returnBook() {
+        DatabaseHandler db = mainApp.getDBHandler();
+        Customer cu = mainApp.getLoginCustomer();
+
+        String updateCusQuery = "UPDATE " + customerTBL +
+                " SET BOOKID = " + 0 +
+                " WHERE CUSTOMERID = " + cu.getCustomerID();
+        db.execAction(updateCusQuery);
+
+        System.out.println("RETURN Query (CUS): " + updateCusQuery);
+
+        int quantity = selectedBook.getQuantity()+1;
+        String updateBookQuery = "UPDATE " + bookstoreTable +
+                " SET QUANTITY = " + quantity +
+                " WHERE IDNUMBER = " + selectedBook.getIDNumber();
+        db.execAction(updateBookQuery);
+
+        System.out.println("RETURN Query (Book): " + updateBookQuery);
+
+
+        quantityCol.setText(Integer.toString(quantity));
+        statusLbl.setText("Available");
+        cu.setBorrowedID(0);
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.initOwner(mainApp.getPrimaryStage());
+        alert.setTitle("Returned");
+        alert.setHeaderText("Success!!");
+        alert.setContentText("You returned " + selectedBook.getTitle());
+
+        alert.showAndWait();
+
+    }
+
+}
