@@ -1,0 +1,56 @@
+public class Book {
+
+    private final StringProperty title;
+    private final StringProperty author;
+    private final StringProperty genre;
+    private final IntegerProperty quantity;
+    private final IntegerProperty idnum;
+
+    public Book() {
+        this(null, null, null, 0, 0);
+    }
+
+    public Book(String title, String author, String genre, Integer idnum, Integer quantity) {
+        this.title = new SimpleStringProperty(title);
+        this.author = new SimpleStringProperty(author);
+        this.genre = new SimpleStringProperty(genre);
+        this.quantity = new SimpleIntegerProperty(quantity);
+        this.idnum = new SimpleIntegerProperty(idnum);
+    }
+
+    public String getTitle() {
+        return title.get();
+    }
+    public StringProperty titleProperty() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author.get();
+    }
+    public StringProperty authorProperty() {
+        return title;
+    }
+
+    public String getGenre() {
+        return genre.get();
+    }
+    public StringProperty genreProperty() {
+        return genre;
+    }
+
+    public int getIDNumber() {
+        return idnum.get();
+    }
+    public IntegerProperty idNumProperty() {
+        return idnum;
+    }
+
+    public int getQuantity() {
+        return quantity.get();
+    }
+    public IntegerProperty quantityProperty() {
+        return idnum;
+    }
+
+}
