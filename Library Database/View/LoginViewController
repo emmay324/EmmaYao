@@ -1,0 +1,122 @@
+public class LoginViewController {
+
+    @FXML
+    private TextField customerID;
+
+    @FXML
+    private Button loginBtn;
+
+    @FXML
+    private TextField pinNumber;
+
+    @FXML
+    private Button signUPBtn;
+
+
+    public static String bookstoreTBL = "BOOKSTORE";
+    public static String customerTBL = "CUSTOMER";
+
+    private MainApp mainApp;
+    private Stage dialogStage;
+    private boolean okClicked = false;
+    private Customer loggedCustomer;
+
+    public LoginViewController() {
+    }
+
+    @FXML
+    private void initialize() {
+    }
+
+    public void setMainApp(MainApp mainApp) {
+        this.mainApp = mainApp;
+    }
+
+    public void setDialogStage(Stage dialogStage) {
+        this.dialogStage = dialogStage;
+    }
+
+    public boolean isOkClicked() {
+        return okClicked;
+    }
+
+    public Customer getLoggedCustomer() {
+        return loggedCustomer;
+    }
+
+    @FXML
+    private void handleSignUP() {
+        Dialog<Customer> dialog = new Dialog<>();
+        dialog.setTitle("Sign-UP");
+        dialog.setHeaderText("Please provide customer data.");
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        TextField firstNameField = new TextField("First Name");
+        TextField lastNameField = new TextField("Last Name");
+        TextField customerIDField = new TextField("Customer ID");
+        TextField customerPINField = new TextField("Customer PIN");
+
+        dialogPane.setContent(new VBox(8, firstNameField, lastNameField, customerIDField, customerPINField));
+        Platform.runLater(firstNameField::requestFocus);
+        dialog.setResultConverter((ButtonType button) -> {
+            if (button == ButtonType.OK) {
+                return new Customer(firstNameField.getText(),
+                        lastNameField.getText(),
+                        Integer.parseInt(customerPINField.getText()),
+                        Integer.parseInt(customerIDField.getText()),
+                        0);
+            }
+            return null;
+        });
+        Optional<Customer> tempCustomer = dialog.showAndWait();
+
+        tempCustomer.ifPresent((Customer u) -> {
+            DatabaseHandler db = mainApp.getDBHandler();
+            String qu = "INSERT INTO " + customerTBL + " VALUES (" +
+                    "'" + u.getFirstName() + "'," +
+                    "'" + u.getLastName() + "'," +
+                    u.getPIN() + "," + null + "," +
+                    u.getCustomerID() + ")";
+            System.out.println(qu);
+            db.execAction(qu);
+        });
+    }
+
+    @FXML
+    private void handleLogIN() {
+        DatabaseHandler db = mainApp.getDBHandler();
+
+        // define query for checking proper login
+        String st = "SELECT * FROM " + customerTBL +
+                " WHERE CUSTOMERID = " + Integer.parseInt(customerID.getText());
+        ResultSet rs = db.execQuery(st);
+
+        try {
+            if (rs.next()) {
+                String firstName = rs.getString("FIRSTNAME");
+                String lastName = rs.getString("LASTNAME");
+                long pin = rs.getLong("PIN");
+                if (pin == Integer.parseInt(pinNumber.getText())) {
+                    loggedCustomer = new Customer(firstName, lastName, Integer.parseInt(pinNumber.getText()), Long.valueOf(rs.getLong("CUSTOMERID")).intValue(), 0);
+                    if (rs.getLong("BOOKID") > 0) {
+                        loggedCustomer.setBorrowedID(Long.valueOf(rs.getLong("BOOKID")).intValue());
+                    }
+                    System.out.println("Logged-IN: " + loggedCustomer.getFirstName() + ", " + loggedCustomer.getCustomerID());
+                    okClicked = true;
+                    dialogStage.close();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.initOwner(mainApp.getPrimaryStage());
+                    alert.setTitle("Login Error");
+                    alert.setHeaderText("Try again");
+                    alert.setContentText("with correct login information.");
+                    alert.showAndWait();
+                }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        okClicked = true;
+        dialogStage.close();
+    }
+}
